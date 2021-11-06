@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon  Apr 13 20:33:10 2020
+Created on Thursday  Nov 04 13:00 2021
 
 @author: Luis Guevara
 """
@@ -16,7 +16,10 @@ start=time.time()
 import requests
 import pandas as pd
 import math
+import os
 from os import listdir
+import sys
+import json
 
 #Note from the API./ 'in this documentation all the examples are realized with the url provided for rapidApi, if you have subscribed directly with us you will have to replace https://api-football-v1.p.rapidapi.com/v2/ by https://v2.api-football.com/'
 
@@ -25,13 +28,13 @@ from os import listdir
 
 #Please state the year of investigation.
 
-YEAR = 2020
-CODE_COUNTRY = 'es'
+YEAR = 2021
+CODE_COUNTRY = 'it'
 YEAR_str = str(YEAR)
 
 request_league_ids = False
 request_fixtures = True
-request_missing_game_stats = True
+request_missing_game_stats = False
 
 
 #------------------------------ REQUEST FUNCTIONS -----------------------------
@@ -55,8 +58,14 @@ def slice_api(api_str_output, start_char, end_char):
   output = api_str_output[s:e]
   return output
 
+def create_file_if_not_exists(path):
+    # Create a new directory because it does not exist
+    is_exist = os.path.exists(path)
+    if not is_exist:
+        os.makedirs(path)
 
 def save_api_output(save_name, jason_data, json_data_path=''):
+    create_file_if_not_exists(json_data_path)
     writeFile = open(json_data_path + save_name + '.json', 'w')
     writeFile.write(jason_data)
     writeFile.close()
@@ -94,14 +103,26 @@ def req_fixtures_id(season_code, year=YEAR_str):
 if request_league_ids:
     leagues = league_fixtures_raw = get_api_data(base_url, 'leagues/search/league')
 
-if YEAR == 2019:
-    season_id = 775
-elif YEAR == 2020:
-    season_id = 2833
-elif YEAR == 2021:
-    season_id = 3513
-else:
-    print('please lookup season id and specify this as season_id variable')
+
+leagues_countries_dfs = read_json_as_pd_df('leagues_country.json', json_data_path='')
+country_league_df = leagues_countries_dfs.loc[leagues_countries_dfs['country'] == CODE_COUNTRY]
+try:
+    leagues_by_country = country_league_df['leagues'].iloc[0]
+    season_id = leagues_by_country[YEAR_str]
+except:
+    print('ERROR: please lookup season id and/or year in leagues_country.json file')
+    sys.exit(1)
+
+
+
+# if YEAR == 2019:
+#     season_id = 891
+# elif YEAR == 2020:
+#     season_id = 2833
+# elif YEAR == 2021:
+#     season_id = 3513
+# else:
+#     print('please lookup season id and specify this as season_id variable')
 
 #requesting the fixture list using the function req_fixture_id
 if request_fixtures:
@@ -159,16 +180,23 @@ fixtures_clean.to_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/{YEAR_str}_
 
 #in this section we simply load the 2019+2020 fixtures and the 2021 fixtures and stitch the two dataframes together.
 
-fixtures_clean_2019 = pd.read_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/2019_{CODE_COUNTRY}_fixtures_df.csv')
-fixtures_clean_2020 = pd.read_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/2020_{CODE_COUNTRY}_fixtures_df.csv')
-fixtures_clean_2021 = pd.read_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/2021_{CODE_COUNTRY}_fixtures_df.csv')
+def req_fixtures_id():
+    existing_data_fixtures = listdir(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}')
+    exists_data_fixtures = False
+    if (f'2019_{CODE_COUNTRY}_fixtures_df.csv' in existing_data_fixtures and
+        f'2020_{CODE_COUNTRY}_fixtures_df.csv' in existing_data_fixtures and
+        f'2021_{CODE_COUNTRY}_fixtures_df.csv' in existing_data_fixtures):
+        exists_data_fixtures = True
 
-#fixtures_clean_2021 = pd.read_csv('prem_clean_fixtures_and_dataframes/2021_premier_league_fixtures_df.csv')
+    if exists_data_fixtures:
+        fixtures_clean_2019 = pd.read_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/2019_{CODE_COUNTRY}_fixtures_df.csv')
+        fixtures_clean_2020 = pd.read_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/2020_{CODE_COUNTRY}_fixtures_df.csv')
+        fixtures_clean_2021 = pd.read_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/2021_{CODE_COUNTRY}_fixtures_df.csv')
 
-fixtures_clean_combined = pd.concat([fixtures_clean_2019, fixtures_clean_2020, fixtures_clean_2021])
-fixtures_clean_combined = fixtures_clean_combined.reset_index(drop=True)
+        fixtures_clean_combined = pd.concat([fixtures_clean_2019, fixtures_clean_2020, fixtures_clean_2021])
+        fixtures_clean_combined = fixtures_clean_combined.reset_index(drop=True)
 
-fixtures_clean_combined.to_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/2019_2020_2021_{CODE_COUNTRY}_fixtures_df.csv', index=False)
+        fixtures_clean_combined.to_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/2019_2020_2021_{CODE_COUNTRY}_fixtures_df.csv', index=False)
 
 #-------------------------- REQUESTING SPECIFIC STATS -------------------------
 
@@ -180,6 +208,7 @@ fixtures_clean = pd.read_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/{YEA
 # and request the game data of any missing games that have been played since we last requested data.
 
 #listing the json data already collected
+create_file_if_not_exists(f'game_stats_json_files/{CODE_COUNTRY}')
 existing_data_raw = listdir(f'game_stats_json_files/{CODE_COUNTRY}')
 
 #removing '.json' from the end of this list
