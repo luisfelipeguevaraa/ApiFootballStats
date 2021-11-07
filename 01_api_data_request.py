@@ -28,13 +28,13 @@ import json
 
 #Please state the year of investigation.
 
-YEAR = 2021
-CODE_COUNTRY = 'it'
+YEAR = 2019
+CODE_COUNTRY = 'de'
 YEAR_str = str(YEAR)
 
 request_league_ids = False
 request_fixtures = True
-request_missing_game_stats = False
+request_missing_game_stats = True
 
 
 #------------------------------ REQUEST FUNCTIONS -----------------------------
@@ -113,17 +113,6 @@ except:
     print('ERROR: please lookup season id and/or year in leagues_country.json file')
     sys.exit(1)
 
-
-
-# if YEAR == 2019:
-#     season_id = 891
-# elif YEAR == 2020:
-#     season_id = 2833
-# elif YEAR == 2021:
-#     season_id = 3513
-# else:
-#     print('please lookup season id and specify this as season_id variable')
-
 #requesting the fixture list using the function req_fixture_id
 if request_fixtures:
     fixtures = req_fixtures_id(season_id, YEAR_str)
@@ -198,6 +187,7 @@ def req_fixtures_id():
 
         fixtures_clean_combined.to_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/2019_2020_2021_{CODE_COUNTRY}_fixtures_df.csv', index=False)
 
+req_fixtures_id()
 #-------------------------- REQUESTING SPECIFIC STATS -------------------------
 
 fixtures_clean = pd.read_csv(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/{YEAR_str}_{CODE_COUNTRY}_fixtures_df.csv')
@@ -244,7 +234,7 @@ def req_prem_stats_list(missing_data):
             fix_id = str(dat)
             fixture_raw = get_api_data(base_url, '/statistics/fixture/' + fix_id + '/')
             fixture_sliced = slice_api(fixture_raw, 34, 2)
-            save_api_output(f'game_stats_json_files/{CODE_COUNTRY}/' + fix_id, fixture_sliced)
+            save_api_output(fix_id, fixture_sliced, f'game_stats_json_files/{CODE_COUNTRY}/')
 
 if request_missing_game_stats:
     req_prem_stats_list(missing_data)
