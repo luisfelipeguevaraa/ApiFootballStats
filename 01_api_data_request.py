@@ -20,6 +20,7 @@ import os
 from os import listdir
 import sys
 import json
+import configparser
 
 #Note from the API./ 'in this documentation all the examples are realized with the url provided for rapidApi, if you have subscribed directly with us you will have to replace https://api-football-v1.p.rapidapi.com/v2/ by https://v2.api-football.com/'
 
@@ -28,8 +29,10 @@ import json
 
 #Please state the year of investigation.
 
-YEAR = 2019
-CODE_COUNTRY = 'de'
+config = configparser.ConfigParser()
+config.read('config.ini')
+CODE_COUNTRY = config['DEFAULT']['CODE_COUNTRY']
+YEAR = 2021
 YEAR_str = str(YEAR)
 
 request_league_ids = False

@@ -17,6 +17,7 @@ import pandas as pd
 import math
 import pickle
 import json
+import configparser
 
 
 
@@ -25,7 +26,9 @@ import json
 #Please state the name of the fixtures DataFrame we want to generate our dictionary,
 # as well as the name of the saved output file (nested stats dictionary).
 
-CODE_COUNTRY = 'de'
+config = configparser.ConfigParser()
+config.read('config.ini')
+CODE_COUNTRY = config['DEFAULT']['CODE_COUNTRY']
 
 fixtures_saved_name = f'2019_2020_2021_{CODE_COUNTRY}_fixtures_df.csv'
 stats_dict_output_name = f'2019_2020_2021_{CODE_COUNTRY}_all_stats_dict.txt'

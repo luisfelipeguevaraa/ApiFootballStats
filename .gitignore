@@ -139,7 +139,9 @@ cython_debug/
 
 #keys
 api_key.txt
+execute_project_w.bat
 game_stats_json_files/
 clean_fixtures_and_dataframes/
+predictions/pl_*
 /Preparacion
 .history/
