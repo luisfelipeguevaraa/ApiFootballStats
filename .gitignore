@@ -142,6 +142,7 @@ api_key.txt
 execute_project_w.bat
 game_stats_json_files/
 clean_fixtures_and_dataframes/
+ml_model_build_random_forest/ml_models/random_forest_*
 predictions/pl_*
 /Preparacion
 .history/
