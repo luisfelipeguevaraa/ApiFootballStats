@@ -32,7 +32,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 CODE_COUNTRY = config['DEFAULT']['CODE_COUNTRY']
-YEAR = 2021
+YEAR = config['DEFAULT']['YEAR']
 YEAR_str = str(YEAR)
 
 request_league_ids = False
