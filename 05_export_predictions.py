@@ -47,6 +47,22 @@ pl_pred = pl_pred.reset_index(drop=True)
 with open(f'clean_fixtures_and_dataframes/{CODE_COUNTRY}/2019_2020_2021_{CODE_COUNTRY}_additional_stats_dict.txt', 'rb') as myFile:
     additional_stats_dict = pickle.load(myFile)
 
+
+# ----------------------------------- READ FROM ODDS -------------------------------------
+with open(f'odds_cons/odds_by_country_es.csv', 'rb') as myFile:
+    odds_es = pd.read_csv(myFile)
+
+with open(f'odds_cons/odds_by_country_it.csv', 'rb') as myFile:
+    odds_it = pd.read_csv(myFile)
+
+with open(f'odds_cons/odds_by_country_de.csv', 'rb') as myFile:
+    odds_de = pd.read_csv(myFile)
+
+with open(f'odds_cons/odds_by_country_fr.csv', 'rb') as myFile:
+    odds_fr = pd.read_csv(myFile)
+
+
+
 #removing all past predictions if they still exist in the predictions df
 current_date = datetime.today().strftime('%Y-%m-%d')
 final_date = datetime.now() + timedelta(days=10)
@@ -68,7 +84,14 @@ pl_pred = pl_pred.drop('index', 1)
 
 
 pl_pred = pl_pred[["Game Date", "league", "Home Team", "Away Team", "Home Win", "Draw", "Away Win", "Fixture ID"]]
+
+
+pl_pred = pl_pred.merge(odds_fr, on='Fixture ID', how='left', indicator=True)
+
 pl_pred = pl_pred.sort_values(by=['Game Date', 'league' ], ascending=(True,True))
+
+
+
 
 pl_pred.to_excel(f'predictions_with_cuotes/lista_de_predicciones_{current_date}.xlsx', index=False)
 

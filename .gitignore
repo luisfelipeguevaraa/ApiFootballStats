@@ -146,4 +146,6 @@ ml_model_build_random_forest/ml_models/random_forest_*
 predictions/pl_*
 /Preparacion
 predictions_with_cuotes/
+bets_by_fixture/
+odds_cons/
 .history/
