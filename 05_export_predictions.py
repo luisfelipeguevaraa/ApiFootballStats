@@ -61,7 +61,7 @@ with open(f'odds_cons/odds_by_country_de.csv', 'rb') as myFile:
 with open(f'odds_cons/odds_by_country_fr.csv', 'rb') as myFile:
     odds_fr = pd.read_csv(myFile)
 
-
+odds = pd.concat([odds_es, odds_it, odds_de, odds_fr ])
 
 #removing all past predictions if they still exist in the predictions df
 current_date = datetime.today().strftime('%Y-%m-%d')
@@ -86,7 +86,7 @@ pl_pred = pl_pred.drop('index', 1)
 pl_pred = pl_pred[["Game Date", "league", "Home Team", "Away Team", "Home Win", "Draw", "Away Win", "Fixture ID"]]
 
 
-pl_pred = pl_pred.merge(odds_fr, on='Fixture ID', how='left', indicator=True)
+pl_pred = pl_pred.merge(odds, on='Fixture ID', how='left', indicator=True)
 
 pl_pred = pl_pred.sort_values(by=['Game Date', 'league' ], ascending=(True,True))
 
